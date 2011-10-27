@@ -1,0 +1,203 @@
+MAP
+	CONFIG "MS_ENCRYPTION_KEY" "/chemin/clef/encryptage.txt"
+	UNITS METERS
+	EXTENT 596320.332138 125469.939357 604889.312972 131578.734095
+	IMAGECOLOR 255 255 255
+	SIZE 500 400
+	NAME "Vasserot"
+
+PROJECTION
+	"init=epsg:27561"
+END #PROJECTION
+
+OUTPUTFORMAT
+	NAME "png"
+    MIMETYPE "image/png"
+    DRIVER "GD/PNG"
+    EXTENSION "png"
+    IMAGEMODE RGBA
+    FORMATOPTION "TRANSPARENT=OFF"
+END # OUTPUTFORMAT
+
+WEB
+	IMAGEPATH '/home/leodumont/www/tmp/'
+	IMAGEURL  '../temp/'
+    METADATA
+    	"wms_enable_request" "*"
+		"wms_title" "Élections mai 1850 à Paris"
+		"wms_onlineresource" "http://leodumont.alwaysdata.net/cgi-bin/mapserv?map=/home/leodumont/www/paris/wms/postgis.map&"
+		"wms_srs" "epsg:27561"
+		"wms_format" "image/png"
+		"ows_include_items" "all"
+		"wms_include_items" "all"
+		"wms_feature_info_mime_type" "text/html"
+	END #METADATA
+END #WEB
+
+LEGEND
+	IMAGECOLOR 255 255 255
+    KEYSIZE 20 10
+    	LABEL
+    	END #LABEL
+	STATUS ON
+END #LEGEND
+
+LAYER
+	NAME "Paris"
+	METADATA
+		"wms_title" "Paris"
+		"wms_srs" "epsg:27561"
+		"ows_include_items" "all"
+		"wms_include_items" "all"
+		"wms_latlonboundingbox" "-180 -67.866 180 -36.074"
+	END #METADATA
+	
+	PROJECTION
+		"init=epsg:27561"
+	END #PROJECTION
+
+	TEMPLATE 'popup.html'
+    
+    DUMP TRUE
+    
+    TOLERANCE 1
+    
+    CONNECTIONTYPE POSTGIS
+	CONNECTION "user=user password={clef encryptage} dbname=dbname host=host"
+    DATA "the_geom FROM paris USING UNIQUE gid USING srid=27561"
+    STATUS OFF
+    TYPE POLYGON
+    
+    CLASS
+        COLOR 255 255 255
+        OUTLINECOLOR 0 0 0
+    END #CLASS
+  END #LAYER
+  
+  LAYER
+	NAME "voteSue"
+	METADATA
+		"wms_title" "voteSue"
+		"wms_srs" "epsg:27561"
+		"ows_include_items" "all"
+		"wms_include_items" "all"
+	END #METADATA
+	
+	PROJECTION
+		"init=epsg:27561"
+	END #PROJECTION
+    
+    TEMPLATE 'popup.html'
+    
+    DUMP TRUE
+    
+    TOLERANCE 1
+    
+    CONNECTIONTYPE POSTGIS
+	CONNECTION "user=user password={clef encryptage} dbname=dbname host=host"
+    DATA 'the_geom FROM "paris" USING UNIQUE gid USING srid=27561'
+    FILTER ( GeometryType("the_geom") IN ('POLYGON','MULTIPOLYGON') )
+    STATUS ON
+    TYPE POLYGON
+    
+    CLASS
+    NAME "[4066,4397]"
+	EXPRESSION ([Sue1850] < 5453)
+	STYLE
+		COLOR 252 174 145
+		OUTLINECOLOR 0 0 0
+	END #STYLE
+END #CLASS
+
+CLASS
+	NAME "(4397,5698]"
+	EXPRESSION (([Sue1850] > 4397) AND ([Sue1850] < 6889))
+	STYLE
+		COLOR 251 106 74
+		OUTLINECOLOR 0 0 0
+	END #STYLE
+END #CLASS
+	
+CLASS
+	NAME "(5698,7492]"
+	EXPRESSION (([Sue1850] > 5698) AND ([Sue1850] < 10100))
+	STYLE
+		COLOR 222 45 38
+		OUTLINECOLOR 0 0 0
+	END #STYLE
+END #CLASS
+
+CLASS
+	NAME "(7492,12407]"
+	EXPRESSION ([Sue1850] > 7492)
+	STYLE
+		COLOR 165 15 21
+		OUTLINECOLOR 0 0 0
+	END #STYLE
+END #CLASS
+END #LAYER
+
+  LAYER
+	NAME "voteLeclerc"
+	METADATA
+		"wms_title" "voteLeclerc"
+		"wms_srs" "epsg:27561"
+		"ows_include_items" "all"
+		"wms_include_items" "all"
+	END #METADATA
+	
+	PROJECTION
+		"init=epsg:27561"
+	END #PROJECTION
+    
+    TEMPLATE 'popup.html'
+    
+    DUMP TRUE
+    
+    TOLERANCE 1
+    
+    CONNECTIONTYPE POSTGIS
+    CONNECTION "user=user password={clef encryptage} dbname=dbname host=host"
+    DATA 'the_geom FROM "paris" USING UNIQUE gid USING srid=27561'
+    FILTER ( GeometryType("the_geom") IN ('POLYGON','MULTIPOLYGON') )
+    STATUS ON
+    TYPE POLYGON
+    
+CLASS
+	NAME "[2911,4484]"
+	EXPRESSION ([Leclerc1850] < 5378)
+	STYLE
+		COLOR 200 200 250
+		OUTLINECOLOR 10 10 10
+	END #STYLE
+END #CLASS
+
+CLASS
+	NAME "(4484,6351]"
+	EXPRESSION (([Leclerc1850] > 4484) AND ([Leclerc1850] < 7428))
+	STYLE
+		COLOR 100 100 250
+		OUTLINECOLOR 10 10 10
+	END #STYLE
+END #CLASS
+	
+CLASS
+	NAME "(6371,7428]"
+	EXPRESSION ([Leclerc1850] = 7428)
+	STYLE
+		COLOR 30 30 200
+		OUTLINECOLOR 10 10 10
+	END #STYLE
+END #CLASS
+
+CLASS
+	NAME "(7428,11379]"
+	EXPRESSION ([Leclerc1850] > 7428)
+	STYLE
+		COLOR 10 10 120
+		OUTLINECOLOR 240 240 240
+	END #STYLE
+END #CLASS
+END #LAYER
+
+END #MAP
